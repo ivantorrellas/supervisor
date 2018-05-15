@@ -11,7 +11,7 @@ fi
 
 if [ -z "$INTERVAL" ]
 then
-  INTERVAL=0.5
+  INTERVAL=1
 fi
 echo "Started test with $NUMBER% chances to die and an interval of $INTERVAL seconds" | tee $0.log
 while true; do
