@@ -1,0 +1,50 @@
+#!/bin/bash
+# set -x
+
+PARAM0=$0 #File name
+PARAM1=$1 #Process Name
+PARAM2=$2   #Seconds
+PARAM3=$3   #Attemps
+PARAM4=$4   #Interval
+#Messages for logs
+MESSAGE1="$(date '+%Y%m%d%H%M%S') - Failed to launch do to lack of parameters" ## Message for failed launch
+MESSAGE2="$(date '+%Y%m%d%H%M%S') - Launch successful - $PARAM0 $PARAM1 $PARAM2 $PARAM3 $PARAM4" ## Message for successful launch
+MESSAGE3="$(date '+%Y%m%d%H%M%S') $PARAM1 restarted after # of attempts: " ## Message for restart event
+MESSAGE4="$(date '+%Y%m%d%H%M%S') -Attempted to restart $PARAM1 for $PARAM3 times unsuccessfully" ## Message for failed restart
+
+if [ -z "$PARAM1" ]
+then
+  echo "Parameter 1 is null"
+  echo "USE: $PARAM0 [Proccess Name] [Seconds] [Attemps] [Interval]"
+  echo "Seconds = Seconds to wait between attempts to restart service"
+  echo "Attemps = Number of attempts before giving up"
+  echo "Process Name = Name of the process to supervise"
+  echo "Interval = Check interval in seconds"
+  echo "$MESSAGE1" | tee -a $PARAM0.log
+  exit 1
+else
+  echo "Successfully supervising $PARAM1 with $PARAM3 attempts each every $PARAM2 seconds and checking $PARAM0 every $PARAM4 seconds"
+  echo "$MESSAGE2" | tee -a $PARAM0.log
+fi
+
+last=0
+while true;
+do
+  sleep "$PARAM4" #wait for interval
+  if ! pgrep -f "$PARAM1"
+  then
+    sleep "$PARAM2" #wait between attempts
+    if [ $last -lt "$PARAM3" ] #if less than attempts
+    then
+      chmod +x "$PARAM1"
+      ./"$PARAM1" &
+      last=$((last + 1))
+      echo "$MESSAGE3 $last" | tee -a $PARAM0.log
+    else
+      echo "$MESSAGE4" | tee -a $PARAM0.log
+      exit 1
+    fi
+  else
+    last=0
+  fi
+done
