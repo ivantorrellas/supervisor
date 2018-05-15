@@ -13,7 +13,7 @@ if [ -z "$INTERVAL" ]
 then
   INTERVAL=1
 fi
-echo "Started test with $NUMBER% chances to die and an interval of $INTERVAL seconds" | tee $0.log
+echo "Started test with $NUMBER% chances to live and an interval of $INTERVAL seconds" | tee $0.log
 while true; do
 sleep $INTERVAL
 ROULETTE=$(echo $RANDOM | cut -c 1-2)
